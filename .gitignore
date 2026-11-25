@@ -1,0 +1,7 @@
+.build/
+.swiftpm/
+DerivedData/
+*.xcresult
+*.xcodeproj/
+.DS_Store
+docs/demo.mp4

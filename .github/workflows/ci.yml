@@ -1,0 +1,19 @@
+name: iOS validation
+on: [push, pull_request]
+jobs:
+  validate:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - run: bash scripts/check-coverage.sh
+      - run: brew install xcodegen
+      - run: xcodegen generate
+      - run: xcodebuild -project DynamicUI.xcodeproj -scheme Forma -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -resultBundlePath UnitResults.xcresult -only-testing:FormaTests test CODE_SIGNING_ALLOWED=NO
+      - run: bash scripts/check-app-coverage.sh UnitResults.xcresult
+      - run: xcodebuild -project DynamicUI.xcodeproj -scheme Forma -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -resultBundlePath TestResults.xcresult -only-testing:FormaUITests test CODE_SIGNING_ALLOWED=NO
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-evidence
+          path: '*.xcresult'
